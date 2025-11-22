@@ -1,0 +1,142 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>HybridFramework</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+
+        <env>qa2</env>
+        <suiteXmlFile>src/test/resources/testng/Regression_OrangeHRM_QA.xml</suiteXmlFile>
+        <!-- Default properties -->
+        <!-- These values are used ONLY if Maven is run WITHOUT a profile -->
+        <!-- For example: mvn clean test -->
+        <!-- 'env' defines which environment to run tests against (qa1, qa2, stage) -->
+        <!-- 'suiteXmlFile' defines which TestNG suite to execute by default -->
+    </properties>
+
+    <dependencies>
+        <!-- Selenium -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.25.0</version>
+        </dependency>
+
+        <!-- WebDriverManager -->
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>5.6.2</version>
+        </dependency>
+
+        <!-- TestNG -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.10.2</version>
+        </dependency>
+
+        <!-- ExtentReports -->
+        <dependency>
+            <groupId>com.aventstack</groupId>
+            <artifactId>extentreports</artifactId>
+            <version>5.0.9</version>
+        </dependency>
+
+        <!-- Apache POI для Excel -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.3</version>
+        </dependency>
+
+        <!-- Apache Commons IO (для скриншотов) -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+    </dependencies>
+
+    <!-- SINGLE build block -->
+    <build>
+        <plugins>
+
+            <!-- Compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+
+            <!-- Surefire -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <systemPropertyVariables>
+                        <env>${env}</env>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <!-- PROFILES -->
+    <profiles>
+
+        <!-- https://practice.expandtesting.com Smoke QA -->
+        <profile>
+            <id>Smoke_PE_QA</id>
+            <properties>
+                <env>qa1</env>
+                <suiteXmlFile>src/test/resources/testng/Smoke_PE_QA.xml</suiteXmlFile>
+            </properties>
+        </profile>
+
+        <!-- OrangeHRM Smoke QA -->
+        <profile>
+            <id>Smoke_OrangeHRM_QA</id>
+            <properties>
+                <env>qa2</env>
+                <suiteXmlFile>src/test/resources/testng/Smoke_OrangeHRM_QA.xml</suiteXmlFile>
+            </properties>
+        </profile>
+
+        <!-- OrangeHRM Smoke Stage -->
+        <profile>
+            <id>Smoke_OrangeHRM_Stage</id>
+            <properties>
+                <env>stage</env>
+                <suiteXmlFile>src/test/resources/testng/Smoke_OrangeHRM_Stage.xml</suiteXmlFile>
+            </properties>
+        </profile>
+
+        <!-- OrangeHRM Regression QA -->
+        <profile>
+            <id>Regression_OrangeHRM_QA</id>
+            <properties>
+                <env>qa2</env>
+                <suiteXmlFile>src/test/resources/testng/Regression_OrangeHRM_QA.xml</suiteXmlFile>
+            </properties>
+        </profile>
+
+    </profiles>
+
+</project>
