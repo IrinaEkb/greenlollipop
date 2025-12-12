@@ -1,10 +1,17 @@
 package Base;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 
 public class BasePage {
 
@@ -16,32 +23,41 @@ public class BasePage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    protected void click(By locator) {
+    // ---------------- Basic element actions ----------------
 
-        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+    @Step("Click on element: {locator}")
+    protected void click(By locator) {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        scrollIntoViewIfNeeded(element);
+        highlightElement(element);
+        element.click();
     }
 
+    @Step("Type '{text}' into element: {locator}")
     protected void type(By locator, String text) {
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        scrollIntoViewIfNeeded(element);
+        highlightElement(element);
         element.clear();
         element.sendKeys(text);
     }
 
+    @Step("Get text from element: {locator}")
     protected String getText(By locator) {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).getText();
     }
 
-    protected void scrollIntoView(By locator) {
-        WebElement element = driver.findElement(locator);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
-    }
-    public void highlightElement(WebElement element) {
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].style.border='3px solid red'" +
-                "setTimeout(function(){ arguments[0].style.border=''; }, 5000);",
-                element);
+    @Step("Get attribute '{attribute}' from element: {locator}")
+    protected String getAttribute(By locator, String attribute) {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).getAttribute(attribute);
     }
 
+    @Step("Clear field: {locator}")
+    protected void clearField(By locator) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).clear();
+    }
+
+    @Step("Check if element is displayed: {locator}")
     protected boolean isDisplayed(By locator) {
         try {
             return driver.findElement(locator).isDisplayed();
@@ -49,4 +65,157 @@ public class BasePage {
             return false;
         }
     }
+
+    @Step("Check if element is enabled: {locator}")
+    protected boolean isEnabled(By locator) {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isEnabled();
+    }
+
+    // ---------------- Scroll / JS Actions ----------------
+
+    @Step("Scroll element into view: {locator}")
+    protected void scrollIntoViewIfNeeded(WebElement element) {
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView({block: 'center', inline: 'center'});", element);
+    }
+
+    @Step("Scroll by x:{x}, y:{y}")
+    protected void scrollBy(int x, int y) {
+        ((JavascriptExecutor) driver).executeScript("window.scrollBy(arguments[0], arguments[1]);", x, y);
+    }
+
+    @Step("Click element with JS: {locator}")
+    protected void clickWithJS(By locator) {
+        WebElement element = driver.findElement(locator);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+    }
+
+    @Step("Highlight element")
+    protected void highlightElement(WebElement element) {
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].style.border='3px solid red';" +
+                        "setTimeout(function(){ arguments[0].style.border=''; }, 500);", element);
+    }
+
+    // ---------------- Checkbox / Radio ----------------
+
+    @Step("Check checkbox: {locator}")
+    protected void checkCheckbox(By locator) {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        if (!element.isSelected()) element.click();
+    }
+
+    @Step("Uncheck checkbox: {locator}")
+    protected void uncheckCheckbox(By locator) {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        if (element.isSelected()) element.click();
+    }
+
+    @Step("Select radio button: {locator}")
+    protected void selectRadio(By locator) {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        if (!element.isSelected()) element.click();
+    }
+
+    // ---------------- Dropdown / Select ----------------
+
+    @Step("Select dropdown by visible text: {locator}, text: {text}")
+    protected void selectByVisibleText(By locator, String text) {
+        Select select = new Select(wait.until(ExpectedConditions.elementToBeClickable(locator)));
+        select.selectByVisibleText(text);
+    }
+
+    @Step("Select dropdown by value: {locator}, value: {value}")
+    protected void selectByValue(By locator, String value) {
+        Select select = new Select(wait.until(ExpectedConditions.elementToBeClickable(locator)));
+        select.selectByValue(value);
+    }
+
+    @Step("Select dropdown by index: {locator}, index: {index}")
+    protected void selectByIndex(By locator, int index) {
+        Select select = new Select(wait.until(ExpectedConditions.elementToBeClickable(locator)));
+        select.selectByIndex(index);
+    }
+
+    @Step("Get all dropdown options from: {locator}")
+    protected List<String> getAllDropdownOptions(By locator) {
+        Select select = new Select(wait.until(ExpectedConditions.visibilityOfElementLocated(locator)));
+        List<String> options = new ArrayList<>();
+        for (WebElement option : select.getOptions()) {
+            options.add(option.getText());
+        }
+        return options;
+    }
+
+    // ---------------- Alert / Frame / Window ----------------
+
+    protected void switchToFrame(By locator) {
+        WebElement frame = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        driver.switchTo().frame(frame);
+    }
+
+    protected void switchToDefault() {
+        driver.switchTo().defaultContent();
+    }
+
+    protected void acceptAlert() {
+        wait.until(ExpectedConditions.alertIsPresent()).accept();
+    }
+
+    protected void dismissAlert() {
+        wait.until(ExpectedConditions.alertIsPresent()).dismiss();
+    }
+
+    protected String getAlertText() {
+        return wait.until(ExpectedConditions.alertIsPresent()).getText();
+    }
+
+    @Step("Switch to last window")
+    protected void switchToLastWindow() {
+        Set<String> handles = driver.getWindowHandles();
+        driver.switchTo().window(handles.toArray(new String[0])[handles.size() - 1]);
+    }
+
+    @Step("Switch to newly opened window")
+    protected void switchToNewlyOpenedWindow(String originalWindow) {
+        Set<String> handles = driver.getWindowHandles();
+        for (String handle : handles) {
+            if (!handle.equals(originalWindow)) {
+                driver.switchTo().window(handle);
+                break;
+            }
+        }
+    }
+
+    // ---------------- Explicit Waits ----------------
+
+    protected WebElement waitForElementVisible(By locator, int seconds) {
+        WebDriverWait customWait = new WebDriverWait(driver, Duration.ofSeconds(seconds));
+        return customWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    protected WebElement waitForElementClickable(By locator, int seconds) {
+        WebDriverWait customWait = new WebDriverWait(driver, Duration.ofSeconds(seconds));
+        return customWait.until(ExpectedConditions.elementToBeClickable(locator));
+    }
+
+    // ---------------- Fluent Wait ----------------
+
+    protected WebElement fluentWait(By locator, int timeoutSeconds, int pollMillis) {
+        FluentWait<WebDriver> fluentWait = new FluentWait<>(driver)
+                .withTimeout(Duration.ofSeconds(timeoutSeconds))
+                .pollingEvery(Duration.ofMillis(pollMillis))
+                .ignoring(NoSuchElementException.class)
+                .ignoring(StaleElementReferenceException.class);
+
+        return fluentWait.until(driver -> {
+            WebElement element = driver.findElement(locator);
+            if (element.isDisplayed()) return element;
+            return null;
+        });
+    }
 }
+
+
+
+

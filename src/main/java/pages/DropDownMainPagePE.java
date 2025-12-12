@@ -32,20 +32,18 @@ public class DropDownMainPagePE extends BasePage {
             System.out.println("Popup not found, continue test"); }
     }
 
-    // Получаем все элементы дропдауна
     public List<WebElement> getAllDropdownItems() {
         WebElement dropdownElement = wait.until(ExpectedConditions.visibilityOfElementLocated(dropdown));
-        highlightElement(dropdownElement); // подсветка дропдауна
+        highlightElement(dropdownElement);
         dropdownElement.click();
         return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(dropdownItems));
     }
 
-    // Получаем текст всех элементов дропдауна
     public List<String> getDropdownItemTexts() {
         List<WebElement> items = getAllDropdownItems();
         List<String> texts = new ArrayList<>();
         for (WebElement item : items) {
-            highlightElement(item); // подсветка каждого пункта
+            highlightElement(item);
             texts.add(item.getText());
         }
         return texts;
