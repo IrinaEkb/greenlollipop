@@ -1,9 +1,9 @@
 package Base;
 
+import driver.DriverManager;
 import io.qameta.allure.Step;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -11,24 +11,23 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 
 public class BasePage {
 
     protected WebDriver driver;
     protected WebDriverWait wait;
 
-    public BasePage(WebDriver driver) {
-        this.driver = driver;
+    // ---------------- Constructor ----------------
+    public BasePage() {
+        this.driver = DriverManager.getDriver();
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     // ---------------- Basic element actions ----------------
-
     @Step("Click on element: {locator}")
     protected void click(By locator) {
         WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
-        scrollIntoViewIfNeeded(element);
+        scrollIntoView(element);
         highlightElement(element);
         element.click();
     }
@@ -36,7 +35,7 @@ public class BasePage {
     @Step("Type '{text}' into element: {locator}")
     protected void type(By locator, String text) {
         WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-        scrollIntoViewIfNeeded(element);
+        scrollIntoView(element);
         highlightElement(element);
         element.clear();
         element.sendKeys(text);
@@ -52,11 +51,6 @@ public class BasePage {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).getAttribute(attribute);
     }
 
-    @Step("Clear field: {locator}")
-    protected void clearField(By locator) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).clear();
-    }
-
     @Step("Check if element is displayed: {locator}")
     protected boolean isDisplayed(By locator) {
         try {
@@ -66,25 +60,14 @@ public class BasePage {
         }
     }
 
-    @Step("Check if element is enabled: {locator}")
-    protected boolean isEnabled(By locator) {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isEnabled();
-    }
-
     // ---------------- Scroll / JS Actions ----------------
-
-    @Step("Scroll element into view: {locator}")
-    protected void scrollIntoViewIfNeeded(WebElement element) {
-        ((JavascriptExecutor) driver).executeScript(
-                "arguments[0].scrollIntoView({block: 'center', inline: 'center'});", element);
+    @Step("Scroll element into view")
+    protected void scrollIntoView(WebElement element) {
+        ((JavascriptExecutor) driver)
+                .executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'center'});", element);
     }
 
-    @Step("Scroll by x:{x}, y:{y}")
-    protected void scrollBy(int x, int y) {
-        ((JavascriptExecutor) driver).executeScript("window.scrollBy(arguments[0], arguments[1]);", x, y);
-    }
-
-    @Step("Click element with JS: {locator}")
+    @Step("Click element with JS")
     protected void clickWithJS(By locator) {
         WebElement element = driver.findElement(locator);
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
@@ -98,46 +81,38 @@ public class BasePage {
     }
 
     // ---------------- Checkbox / Radio ----------------
-
-    @Step("Check checkbox: {locator}")
+    @Step("Check checkbox")
     protected void checkCheckbox(By locator) {
         WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
         if (!element.isSelected()) element.click();
     }
 
-    @Step("Uncheck checkbox: {locator}")
+    @Step("Uncheck checkbox")
     protected void uncheckCheckbox(By locator) {
         WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
         if (element.isSelected()) element.click();
     }
 
-    @Step("Select radio button: {locator}")
-    protected void selectRadio(By locator) {
-        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
-        if (!element.isSelected()) element.click();
-    }
-
     // ---------------- Dropdown / Select ----------------
-
-    @Step("Select dropdown by visible text: {locator}, text: {text}")
+    @Step("Select dropdown by visible text")
     protected void selectByVisibleText(By locator, String text) {
         Select select = new Select(wait.until(ExpectedConditions.elementToBeClickable(locator)));
         select.selectByVisibleText(text);
     }
 
-    @Step("Select dropdown by value: {locator}, value: {value}")
+    @Step("Select dropdown by value")
     protected void selectByValue(By locator, String value) {
         Select select = new Select(wait.until(ExpectedConditions.elementToBeClickable(locator)));
         select.selectByValue(value);
     }
 
-    @Step("Select dropdown by index: {locator}, index: {index}")
+    @Step("Select dropdown by index")
     protected void selectByIndex(By locator, int index) {
         Select select = new Select(wait.until(ExpectedConditions.elementToBeClickable(locator)));
         select.selectByIndex(index);
     }
 
-    @Step("Get all dropdown options from: {locator}")
+    @Step("Get all dropdown options")
     protected List<String> getAllDropdownOptions(By locator) {
         Select select = new Select(wait.until(ExpectedConditions.visibilityOfElementLocated(locator)));
         List<String> options = new ArrayList<>();
@@ -148,7 +123,6 @@ public class BasePage {
     }
 
     // ---------------- Alert / Frame / Window ----------------
-
     protected void switchToFrame(By locator) {
         WebElement frame = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
         driver.switchTo().frame(frame);
@@ -186,36 +160,4 @@ public class BasePage {
             }
         }
     }
-
-    // ---------------- Explicit Waits ----------------
-
-    protected WebElement waitForElementVisible(By locator, int seconds) {
-        WebDriverWait customWait = new WebDriverWait(driver, Duration.ofSeconds(seconds));
-        return customWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-    }
-
-    protected WebElement waitForElementClickable(By locator, int seconds) {
-        WebDriverWait customWait = new WebDriverWait(driver, Duration.ofSeconds(seconds));
-        return customWait.until(ExpectedConditions.elementToBeClickable(locator));
-    }
-
-    // ---------------- Fluent Wait ----------------
-
-    protected WebElement fluentWait(By locator, int timeoutSeconds, int pollMillis) {
-        FluentWait<WebDriver> fluentWait = new FluentWait<>(driver)
-                .withTimeout(Duration.ofSeconds(timeoutSeconds))
-                .pollingEvery(Duration.ofMillis(pollMillis))
-                .ignoring(NoSuchElementException.class)
-                .ignoring(StaleElementReferenceException.class);
-
-        return fluentWait.until(driver -> {
-            WebElement element = driver.findElement(locator);
-            if (element.isDisplayed()) return element;
-            return null;
-        });
-    }
 }
-
-
-
-

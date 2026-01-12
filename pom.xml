@@ -16,7 +16,7 @@
         <aspectj.version>1.9.20.1</aspectj.version>
 
         <env>qa</env>
-        <suiteXmlFile>src/test/resources/testng/Regression_QA.xml</suiteXmlFile>
+        <suiteXmlFile>src/test/resources/testng/regression.xml</suiteXmlFile>
 
         <qa.url>https://practice.expandtesting.com</qa.url>
         <stage.url>https://practice.expandtesting.com</stage.url>
@@ -98,6 +98,35 @@
             <version>2.24.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-testng</artifactId>
+            <version>7.33.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>7.33.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <version>2.31.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.23</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -108,7 +137,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
-                    <!-- Подключаем AspectJ для работы @Step -->
+
                     <argLine>
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
                     </argLine>
@@ -118,7 +147,6 @@
                         <suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
                     </suiteXmlFiles>
 
-                    <!-- Переменные окружения -->
                     <systemPropertyVariables>
                         <env>${env}</env>
                     </systemPropertyVariables>
@@ -140,29 +168,19 @@
     <profiles>
 
         <profile>
-            <id>Smoke_QA</id>
+            <id>smoke</id>
             <properties>
-                <env>qa</env>
-                <suiteXmlFile>src/test/resources/testng/Smoke_QA.xml</suiteXmlFile>
+                <suiteXmlFile>src/test/resources/testng/smoke.xml</suiteXmlFile>
             </properties>
         </profile>
 
         <profile>
-            <id>Smoke_STAGE</id>
+            <id>regression</id>
             <properties>
-                <env>stage</env>
-                <suiteXmlFile>src/test/resources/testng/Smoke_STAGE.xml</suiteXmlFile>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>Regression_QA</id>
-            <properties>
-                <env>qa</env>
-                <suiteXmlFile>src/test/resources/testng/Regression_QA.xml</suiteXmlFile>
+                <suiteXmlFile>src/test/resources/testng/regression.xml</suiteXmlFile>
             </properties>
         </profile>
 
     </profiles>
-
 </project>
+

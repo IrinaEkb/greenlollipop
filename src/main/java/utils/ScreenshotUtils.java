@@ -1,5 +1,6 @@
 package utils;
 
+import io.qameta.allure.Attachment;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -12,27 +13,41 @@ import java.util.Date;
 
 public class ScreenshotUtils {
 
-    public static void captureScreenshot(WebDriver driver, String screenshotName) {
+    private static final String BASE_DIR = "screenshots";
+
+    @Attachment(value = "Screenshot on failure", type = "image/png")
+    public static byte[] captureScreenshot(WebDriver driver, String testName) {
+        byte[] bytes = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+        saveScreenshotToFile(bytes, testName);
+        return bytes;
+    }
+
+    private static void saveScreenshotToFile(byte[] bytes, String testName) {
         try {
-            TakesScreenshot ts = (TakesScreenshot) driver;
-            File src = ts.getScreenshotAs(OutputType.FILE);
+            String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+            String time = new SimpleDateFormat("HHmmss").format(new Date());
 
-            String timeStamp = new SimpleDateFormat("MMdd_HHmmss").format(new Date());
-            File dest = new File("screenshots/" + screenshotName + "_" + timeStamp + ".png");
+            File dir = new File(BASE_DIR + "/" + date);
+            if (!dir.exists()) dir.mkdirs();
 
-            FileUtils.copyFile(src, dest);
+            File file = new File(dir, testName + "_" + time + ".png");
+            FileUtils.writeByteArrayToFile(file, bytes);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void cleanOldScreenshots() {
-        File folder = new File("screenshots");
-        File[] files = folder.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (System.currentTimeMillis() - file.lastModified() > 90L * 24 * 60 * 60 * 1000) { // 90 дней
+    // Очистка файлов старше 90 дней
+    public static void cleanOldScreenshots(int days) {
+        File folder = new File(BASE_DIR);
+        if (!folder.exists()) return;
+
+        long maxAge = days * 24L * 60 * 60 * 1000;
+
+        for (File dir : folder.listFiles()) {
+            for (File file : dir.listFiles()) {
+                if (System.currentTimeMillis() - file.lastModified() > maxAge) {
                     file.delete();
                 }
             }
