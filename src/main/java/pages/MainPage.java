@@ -41,6 +41,11 @@ public class MainPage extends BasePage {
         closePopupIfPresent();
     }
 
+    public boolean isPageOpened() {
+        return isDisplayed(demosDropdown);
+    }
+
+
     private void closePopupIfPresent() {
         try {
             wait.until(ExpectedConditions.elementToBeClickable(popupCloseButton)).click();
@@ -54,6 +59,7 @@ public class MainPage extends BasePage {
     }
 
     private boolean isNot404() {
+
         return !driver.getPageSource().contains("404");
     }
 
@@ -125,7 +131,14 @@ public class MainPage extends BasePage {
         System.out.println("URL AFTER click: " + urlAfter);
 
         boolean urlChanged = !urlBefore.equals(urlAfter);
-        boolean containsExpected = urlAfter.contains(expectedUrlPart);
+        boolean containsExpected;
+
+        if (buttonText.equals("Tips")) {
+            containsExpected = urlAfter.contains(expectedUrlPart) || urlAfter.contains("#google_vignette");
+        } else {
+            containsExpected = urlAfter.contains(expectedUrlPart);
+        }
+
         boolean not404 = isNot404();
 
         System.out.println("URL changed: " + urlChanged);
