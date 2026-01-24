@@ -8,6 +8,7 @@ public class EnvConfig {
 
     public static String getBaseUrl() {
         String env = System.getProperty("env", "qa");
+        System.out.println("ENV = " + env);
 
         return switch (env) {
             case "stage" -> "https://practice.expandtesting.com"; // Stage environment

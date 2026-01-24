@@ -1,5 +1,5 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="regression" parallel="tests">
+<suite name="regression" parallel="classes">
 
     <listeners>
         <listener class-name="utils.TestListener"/>
@@ -10,6 +10,7 @@
         <groups>
             <run>
                 <include name="regression"/>
+                <include name="ui"/>
             </run>
         </groups>
         <packages>

@@ -20,7 +20,7 @@ public class MainPageTest extends BaseTest {
         };
     }
 
-    @Test(dataProvider = "demosDropdownData", groups = {"ui", "regression", "smoke"})
+    @Test(dataProvider = "demosDropdownData", groups = {"ui", "regression"})
     public void demosDropdownTest(String itemText, String expectedUrlPart) {
         MainPage page = new MainPage();
 
@@ -50,7 +50,7 @@ public class MainPageTest extends BaseTest {
         };
     }
 
-    @Test(dataProvider = "menuButtonsData", groups = {"ui", "regression", "smoke"})
+    @Test(dataProvider = "menuButtonsData", groups = {"ui", "regression"})
     public void mainMenuButtonsTest(String buttonText, String expectedUrlPart) {
         MainPage page = new MainPage();
 

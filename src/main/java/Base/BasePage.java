@@ -24,8 +24,14 @@ public class BasePage {
     }
 
     // ---------------- Basic element actions ----------------
+
     @Step("Click on element: {locator}")
     protected void click(By locator) {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        element.click();
+    }
+    @Step("Scroll and click element: {locator}")
+    protected void scrollAndClick(By locator) {
         WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
         scrollIntoView(element);
         highlightElement(element);
@@ -66,6 +72,12 @@ public class BasePage {
         ((JavascriptExecutor) driver)
                 .executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'center'});", element);
     }
+    @Step("Scroll element into view: {locator}")
+    protected void scrollIntoView(By locator) {
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        ((JavascriptExecutor) driver)
+                .executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'center'});", element);
+    }
 
     @Step("Click element with JS")
     protected void clickWithJS(By locator) {
@@ -78,6 +90,12 @@ public class BasePage {
         ((JavascriptExecutor) driver).executeScript(
                 "arguments[0].style.border='3px solid red';" +
                         "setTimeout(function(){ arguments[0].style.border=''; }, 500);", element);
+    }
+    @Step("Highlight and click element: {locator}")
+    protected void highlightAndClick(By locator) {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        highlightElement(element);
+        element.click();
     }
 
     // ---------------- Checkbox / Radio ----------------
@@ -143,6 +161,7 @@ public class BasePage {
     protected String getAlertText() {
         return wait.until(ExpectedConditions.alertIsPresent()).getText();
     }
+
 
     @Step("Switch to last window")
     protected void switchToLastWindow() {

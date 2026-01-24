@@ -38,19 +38,5 @@ public class ScreenshotUtils {
         }
     }
 
-    // Очистка файлов старше 90 дней
-    public static void cleanOldScreenshots(int days) {
-        File folder = new File(BASE_DIR);
-        if (!folder.exists()) return;
+ }
 
-        long maxAge = days * 24L * 60 * 60 * 1000;
-
-        for (File dir : folder.listFiles()) {
-            for (File file : dir.listFiles()) {
-                if (System.currentTimeMillis() - file.lastModified() > maxAge) {
-                    file.delete();
-                }
-            }
-        }
-    }
-}
