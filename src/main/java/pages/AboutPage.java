@@ -25,12 +25,6 @@ public class AboutPage extends BasePage {
     @Step("Close popups and banners")
     public void closeAllPopups() {
         try {
-            if (isDisplayed(drawer)) {
-                click(drawerCloseButton);
-            }
-        } catch (Exception ignored) {}
-
-        try {
             ((JavascriptExecutor) driver).executeScript(
                     "document.querySelectorAll('svg[style*=\"bottom: 0px\"]').forEach(e=>e.remove());");
         } catch (Exception ignored) {}
@@ -38,30 +32,40 @@ public class AboutPage extends BasePage {
 
     @Step("Scroll to 'test automation' button")
     public void scrollToTestAutomation() {
-        WebElement btn = wait.until(ExpectedConditions.visibilityOfElementLocated(testAutomationButton));
-        scrollIntoView(btn);
+        scrollIntoView(testAutomationButton);
     }
 
     @Step("Click test automation button")
     public void clickTestAutomation() {
-        clickWithJS(testAutomationButton);
+        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(testAutomationButton));
+
+        ((JavascriptExecutor) driver)
+                .executeScript("arguments[0].style.border='3px solid red !important';", btn);
+
+        ((JavascriptExecutor) driver)
+                .executeScript("arguments[0].click();", btn);
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Step("Check if drawer is opened (safe)")
     public boolean isDrawerOpenedSafe() {
-        try {
-            return driver.findElement(drawer).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+        return isDisplayed(drawer);
     }
 
     @Step("Check if iframe in drawer (safe)")
     public boolean isIframePresentSafe() {
-        try {
-            return driver.findElement(drawerIframe).isDisplayed();
-        } catch (Exception e) {
-            return false;
+        return isDisplayed(drawerIframe);
+    }
+
+    @Step("Close drawer")
+    public void closeDrawer() {
+        if (isDisplayed(drawerCloseButton)) {
+            click(drawerCloseButton);
         }
     }
 }

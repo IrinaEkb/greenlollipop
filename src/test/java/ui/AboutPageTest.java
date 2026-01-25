@@ -1,9 +1,7 @@
 package ui;
 
 import Base.BaseTest;
-import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.testng.asserts.SoftAssert;
 import pages.AboutPage;
 import utils.EnvConfig;
 
