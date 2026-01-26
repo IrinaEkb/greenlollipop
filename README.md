@@ -1,5 +1,4 @@
-
-# GreenLollipop — Selenium + TestNG Automation Framework
+# Selenium + TestNG Automation Framework
 
 This framework contains both UI and API tests with reusable base classes, configuration management, retry logic, listeners, screenshots, and Excel helpers.
 
@@ -33,9 +32,12 @@ api.baseurl=https://practice.expandtesting.com/notes/api
 ## How to run
 Run Smoke suite (UI + API):
 mvn clean test -Psmoke
+
 Run Regression suite (UI + API):
 mvn clean test -Pregression
+
 Run only UI tests (by groups):
 mvn clean test -Dgroups=ui
+
 Run only API tests (by groups):
 mvn clean test -Dgroups=api
